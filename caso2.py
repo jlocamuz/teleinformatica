@@ -36,7 +36,7 @@ class myNetwork():
             globals()[self.nombre_variable_r] = self.net.addHost(self.nombre_variable_r, cls=Node, ip='')
             self.sucursales.append(i)
             globals()[self.nombre_variable_r].cmd('sysctl -w net.ipv4.ip_forward=1')
-            globals()[self.nombre_variable_h] = self.net.addHost(self.nombre_variable_h, cls=Node, ip='10.0.{}.254/24'.format(i), defaultRoute=None)
+            globals()[self.nombre_variable_h] = self.net.addHost(self.nombre_variable_h, cls=Node, ip='10.0.{}.254/24'.format(i), defaultRoute='via 10.0.{}.1'.format(i))
         # siempre va a estar el central -- crear dsps de los switchs pq si no salta error
         self.r_central = self.net.addHost('r_central', cls=Node, ip='')
         self.r_central.cmd('sysctl -w net.ipv4.ip_forward=1')
@@ -89,7 +89,7 @@ class myNetwork():
 
 if __name__ == '__main__':
     setLogLevel( 'info' )
-    my_network2 = myNetwork(2)
+    my_network2 = myNetwork(3)
     my_network2.add_links()
     my_network2.start_network()
     my_network2.start_switches()
