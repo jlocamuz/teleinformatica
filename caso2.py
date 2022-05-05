@@ -73,29 +73,14 @@ class myNetwork():
     #creamos tabla de ruteo!
     def routing_table_conf(self):
         info( '*** Post configure switches and hosts\n')
+        base_ip = 1
+        for i in range(self.n):
+            self.net['r_central'].cmd('ip route add 10.0.{}.0/24 via 192.168.100.{}'.format(i+1, base_ip))
 
-        #ip route add {NETWORK/MASK} via {GATEWAYIP}
-        #ip route add {NETWORK/MASK} dev {DEVICE}
-
-        # self.sucursales lista numerica 
-        primera_ip_4to = 1
-        for n_sucursal in self.sucursales:
-            self.net['r_central'].cmd('ip route add 10.0.{}.0/24 via 192.168.100.{}'.format(n_sucursal,primera_ip_4to))
-            primera_ip_4to += 8
-            # parada en router sucursales quiero ir al router central...
-            self.net['r{}'.format(n_sucursal)].cmd('ip route add 192.168.100.0/29 via 10.0.{}.1'.format((n_sucursal-1)*8, n_sucursal))
-
-            for i in self.sucursales:
-                if n_sucursal == i: continue
-                print('ip route add 10.0.{}.0 via 192.168.100.{}'.format(i, ((n_sucursal)*8)-2))
-                self.net['r{}'.format(n_sucursal)].cmd('ip route add 10.0.{}.0/24 via 192.168.100.{}'.format(i, ((n_sucursal)*8)-2))
-        
-
-        # parada en router sucursal quiero ir a otra sucursal...
-        # tengo que ir al router principal!
-        # si tengo r1 - r2 - r3 tengo que agregar a mi routing table de r1 el camino para ir a 10.0.2.0/24 10.0.3.0/24
-        #ip route add {NETWORK/24} --> otra sucursal  via {192.168.100.{ultima_ip}}
-        #self.net['r{}'.format(i)].cmd('ip route add 192.168.100.0 via 10.0.{}.1'.format(i, ))
+            for j in range(self.n):
+                self.net['r{}'.format(i+1)].cmd('ip route add 10.0.{}.0/24 via 192.168.100.{}'.format(j+1, base_ip+5))
+                
+            base_ip += 8
 
         CLI(self.net)
         self.net.stop()
